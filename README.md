@@ -1,5 +1,7 @@
 # kubernetes-project1
 
+![Build, Scan, and Push](https://github.com/CamParent/kubernetes-project1/actions/workflows/build-scan-push.yml/badge.svg)
+
 A hardened, multi-container Flask + PostgreSQL + nginx application, built first with Docker Compose and then migrated to a self-hosted Kubernetes (k3s) cluster — end to end, from Dockerfile to a live Ingress-routed deployment with self-healing and horizontal scaling, backed by an automated CI/CD pipeline.
 
 ## What this demonstrates
