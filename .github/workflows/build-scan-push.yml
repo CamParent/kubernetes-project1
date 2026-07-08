@@ -1,0 +1,45 @@
+name: Build, Scan, and Push
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-scan-push:
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t docker-project1-app:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: docker-project1-app:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push image
+        if: github.event_name == 'push'
+        run: |
+          docker tag docker-project1-app:${{ github.sha }} ghcr.io/camparent/docker-project1-app:${{ github.sha }}
+          docker tag docker-project1-app:${{ github.sha }} ghcr.io/camparent/docker-project1-app:latest
+          docker push ghcr.io/camparent/docker-project1-app:${{ github.sha }}
+          docker push ghcr.io/camparent/docker-project1-app:latest
